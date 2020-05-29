@@ -1,7 +1,8 @@
 import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
+import Editor from "./Editor";
 
-interface Image {
+export interface Image {
   file: any;
   width: number;
   height: number;
@@ -34,17 +35,7 @@ function Drop() {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
   if (img) {
-    return (
-      <svg
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-        xmlnsXlink="http://www.w3.org/1999/xlink"
-        width={img.width}
-        height={img.height}
-      >
-        <image width={img.width} height={img.height} xlinkHref={img.data} />
-      </svg>
-    );
+    return <Editor img={img} />;
   } else {
     return (
       <div id="dropzone" {...getRootProps()}>
@@ -54,7 +45,7 @@ function Drop() {
           <>
             <input {...getInputProps()} />
             {isDragActive ? (
-              <span>You got it. Now drop it here...</span>
+              <span>Nice. I can read that. Now drop it on here...</span>
             ) : (
               <span>Drag an image here, or click to browse for it</span>
             )}
