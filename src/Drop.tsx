@@ -1,23 +1,50 @@
 import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 
+interface Image {
+  file: any;
+  width: number;
+  height: number;
+  data: any;
+}
+
 function Drop() {
-  const [img, setImg] = React.useState<string>();
+  const [img, setImg] = React.useState<Image>();
   const [dropped, setDropped] = React.useState<boolean>(false);
 
   const onDrop = useCallback((acceptedFiles) => {
     setDropped(true);
+    const file = acceptedFiles.find(Boolean);
+    const i = new Image();
     const reader = new FileReader();
-    reader.onload = function (e) {
-      setImg(e?.target?.result as string);
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      i.src = reader.result as string;
+      i.onload = () => {
+        setImg({
+          file,
+          width: i.width,
+          height: i.height,
+          data: reader.result,
+        });
+      };
     };
-    reader.readAsDataURL(acceptedFiles[0]);
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
   if (img) {
-    return <img src={img} draggable={false} />;
+    return (
+      <svg
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlnsXlink="http://www.w3.org/1999/xlink"
+        width={img.width}
+        height={img.height}
+      >
+        <image width={img.width} height={img.height} xlinkHref={img.data} />
+      </svg>
+    );
   } else {
     return (
       <div id="dropzone" {...getRootProps()}>
