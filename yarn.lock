@@ -9484,6 +9484,11 @@ redent@^3.0.0:
     indent-string "^4.0.0"
     strip-indent "^3.0.0"
 
+referentiel@^0.0.8:
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/referentiel/-/referentiel-0.0.8.tgz#2d7ecb1dbc6eb047c9f9579722680b4308da4f34"
+  integrity sha512-k7ygEbesXfZo5J+QmGIZPbiZXYR4L8WjHyVfUJXX6BRaVoN047ZdTzI8nawSURYA8NoZKYjPKtPUJOH1VW44wQ==
+
 regenerate-unicode-properties@^8.2.0:
   version "8.2.0"
   resolved "https://registry.yarnpkg.com/regenerate-unicode-properties/-/regenerate-unicode-properties-8.2.0.tgz#e5de7111d655e7ba60c057dbe9ff37c87e65cdec"

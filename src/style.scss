@@ -40,6 +40,20 @@ body {
   }
 }
 
-#svg {
-  border: 1px solid red;
+#editor {
+  font-family: "VT323", monospace;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  background: #111;
+  color: lightgreen;
+  svg {
+    flex: 1;
+    border-bottom: 1px solid lightgreen;
+  }
+  #info {
+    font-size: 22px;
+    text-align: right;
+    padding: 10px;
+  }
 }
