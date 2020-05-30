@@ -1,9 +1,11 @@
 import useDocumentTitle from "@rehooks/document-title";
 import React, { useEffect, useReducer, useRef } from "react";
+import { fromEvent, merge, Subscription } from "rxjs";
 import { Image } from "./Drop";
+import reducer from "./lib/reducer";
 import ViewingTransformer from "./lib/viewingTransformer";
 
-interface State {
+export interface State {
   scaleFactor?: number;
   points: Point[];
   matrix: number[];
@@ -22,73 +24,6 @@ export interface Point {
   x: number;
   y: number;
 }
-
-const reducer = (state: State, action: any) => {
-  const { matrix, dragging, startPosition, position } = state;
-
-  switch (action.type) {
-    case "move":
-      const position2 = { x: action.x, y: action.y };
-      if (dragging) {
-        const dx = position2.x - startPosition.x;
-        const dy = position2.y - startPosition.y;
-
-        const newMatrix = [...matrix];
-        newMatrix[4] += dx;
-        newMatrix[5] += dy;
-
-        return {
-          ...state,
-          position: position2,
-          matrix: newMatrix,
-        };
-      } else {
-        return {
-          ...state,
-          position: position2,
-        };
-      }
-
-    case "down":
-      return {
-        ...state,
-        startPosition: position,
-        dragging: true,
-      };
-
-    case "up":
-      return {
-        ...state,
-        dragging: false,
-      };
-
-    case "matrix":
-      return {
-        ...state,
-        matrix: action.payload,
-      };
-
-    case "zoom":
-      const newMatrix = [...matrix];
-
-      for (let i = 0; i < 4; i++) {
-        newMatrix[i] = newMatrix[i] * action.delta;
-      }
-
-      // const [hCenter, vCenter] = [viewport.width / 2, viewport.height / 2];
-
-      newMatrix[4] = (1 - action.delta) * position.x;
-      newMatrix[5] = (1 - action.delta) * position.y;
-
-      return {
-        ...state,
-        matrix: newMatrix,
-      };
-
-    default:
-      throw new Error(`${action.type} not supported`);
-  }
-};
 
 const distance = (pt1: Point, pt2: Point): number =>
   Math.hypot(pt2.x - pt1.x, pt2.y - pt1.y);
@@ -125,17 +60,33 @@ const Editor: React.FC<{ img: Image }> = ({ img }) => {
   );
 
   useEffect(() => {
-    const mouseUp = () => dispatch({ type: "up" });
+    const streams: Subscription[] = [];
 
-    window.addEventListener("blur", mouseUp);
-    window.addEventListener("mouseup", mouseUp);
-    window.addEventListener("pointerup", mouseUp);
+    streams.push(
+      // mouse up
+      merge(
+        fromEvent(window, "blur"),
+        fromEvent(window, "pointerup")
+      ).subscribe(() => {
+        dispatch({ type: "up" });
+      })
+    );
+
+    const svg = svgRef.current;
+
+    if (svg) {
+      streams.push(
+        // mouse down
+        merge(fromEvent(svg, "pointerdown")).subscribe(() => {
+          dispatch({ type: "down" });
+        })
+      );
+    }
+
     return () => {
-      window.removeEventListener("blur", mouseUp);
-      window.removeEventListener("mouseup", mouseUp);
-      window.removeEventListener("pointerup", mouseUp);
+      streams.forEach(($) => $.unsubscribe());
     };
-  });
+  }, []);
 
   return (
     <div id="editor">
@@ -146,7 +97,6 @@ const Editor: React.FC<{ img: Image }> = ({ img }) => {
         xmlns="http://www.w3.org/2000/svg"
         xmlnsXlink="http://www.w3.org/1999/xlink"
         viewBox={[0, 0, img.width, img.height].join(" ")}
-        onMouseDown={() => dispatch({ type: "down" })}
         onWheel={(e) => {
           const svg = svgRef.current;
           const group = groupRef.current;

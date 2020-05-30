@@ -10,7 +10,8 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-dropzone": "^11.0.1",
-    "react-konva": "^16.13.0-3"
+    "react-konva": "^16.13.0-3",
+    "rxjs": "^6.5.5"
   },
   "scripts": {
     "start": "react-scripts start",
