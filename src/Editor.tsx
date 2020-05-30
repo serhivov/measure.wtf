@@ -140,18 +140,12 @@ const Editor: React.FC<{ img: Image }> = ({ img }) => {
   return (
     <div id="editor">
       <svg
-        overflow="always"
         ref={svgRef}
         id="svg"
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
         xmlnsXlink="http://www.w3.org/1999/xlink"
         viewBox={[0, 0, img.width, img.height].join(" ")}
-        // onClick={() =>
-        //   dispatch({
-        //     type: "click",
-        //   })
-        // }
         onMouseDown={() => dispatch({ type: "down" })}
         onWheel={(e) => {
           const svg = svgRef.current;
