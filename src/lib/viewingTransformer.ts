@@ -1,3 +1,5 @@
+import { Point } from "./Editor";
+
 class ViewingTransformer {
   private vtm: SVGMatrix;
 

@@ -1,7 +1,7 @@
 import useDocumentTitle from "@rehooks/document-title";
 import React, { useEffect, useReducer, useRef } from "react";
 import { Image } from "./Drop";
-import ViewingTransformer from "./viewingTransformer";
+import ViewingTransformer from "./lib/viewingTransformer";
 
 interface State {
   scaleFactor?: number;
@@ -18,45 +18,15 @@ interface State {
   groupRef: React.RefObject<SVGGElement>;
 }
 
-interface Point {
+export interface Point {
   x: number;
   y: number;
 }
 
 const reducer = (state: State, action: any) => {
-  const {
-    points,
-    scaleFactor,
-    matrix,
-    viewport,
-    dragging,
-    startPosition,
-    position,
-  } = state;
+  const { matrix, viewport, dragging, startPosition, position } = state;
 
   switch (action.type) {
-    case "click":
-      // if (points.length === 2 && !scaleFactor) {
-      //   const actualDistance = prompt("How far is that? e.g. 350 feet");
-      //   const match = actualDistance
-      //     ?.replace(/([^\d-\.]*)/g, "")
-      //     ?.match(/[+-]?\d+(?:\.\d+)?/gi);
-
-      //   if (match) {
-      //     const dist = distance(points[0], points[1]);
-      //     const actualDistanceNumber = Number(match[0]);
-      //     alert(
-      //       `${dist} units = ${actualDistance} \n\n ${actualDistanceNumber} \n\n 1 unit = ${
-      //         actualDistanceNumber / dist
-      //       }${actualDistance?.replace(match[0], "")}`
-      //     );
-      //   }
-      // }
-      // return {
-      //   ...state,
-      //   points: [...points, action.payload],
-      // };
-      return state;
     case "move":
       const position2 = { x: action.x, y: action.y };
       if (dragging) {
@@ -78,6 +48,7 @@ const reducer = (state: State, action: any) => {
           position: position2,
         };
       }
+
     case "down":
       return {
         ...state,
@@ -104,7 +75,7 @@ const reducer = (state: State, action: any) => {
         newMatrix[i] = newMatrix[i] * action.delta;
       }
 
-      const [hCenter, vCenter] = [viewport.width / 2, viewport.height / 2];
+      // const [hCenter, vCenter] = [viewport.width / 2, viewport.height / 2];
 
       newMatrix[4] = (1 - action.delta) * position.x;
       newMatrix[5] = (1 - action.delta) * position.y;
@@ -113,8 +84,9 @@ const reducer = (state: State, action: any) => {
         ...state,
         matrix: newMatrix,
       };
+
     default:
-      throw new Error();
+      throw new Error(`${action.type} not supported`);
   }
 };
 
@@ -175,38 +147,46 @@ const Editor: React.FC<{ img: Image }> = ({ img }) => {
         xmlns="http://www.w3.org/2000/svg"
         xmlnsXlink="http://www.w3.org/1999/xlink"
         viewBox={[0, 0, img.width, img.height].join(" ")}
-        onClick={(event) =>
-          dispatch({
-            type: "click",
-          })
-        }
+        // onClick={() =>
+        //   dispatch({
+        //     type: "click",
+        //   })
+        // }
         onMouseDown={() => dispatch({ type: "down" })}
         onWheel={(e) => {
           const svg = svgRef.current;
           const group = groupRef.current;
           if (svg && group) {
-            viewingTransformer =
-              viewingTransformer || new ViewingTransformer(svg);
+            const pt = svg.createSVGPoint();
+            pt.x = e.clientX;
+            pt.y = e.clientY;
 
-            const dir = e.deltaY < 0 ? 1 : -1;
-            const xFactor = 1 + 0.1 * dir;
-            const yFactor =
-              (xFactor * svg.height.baseVal.value) / svg.width.baseVal.value;
+            const gPt = group.getScreenCTM();
 
-            const mat = viewingTransformer.scale(
-              xFactor,
-              yFactor,
-              position
-              // {
-              //   x: e.nativeEvent.offsetX,
-              //   y: e.nativeEvent.offsetY,
-              // }
-            );
+            if (gPt !== null) {
+              const { x, y } = pt.matrixTransform(gPt.inverse());
 
-            dispatch({
-              type: "matrix",
-              payload: [mat.a, mat.b, mat.c, mat.d, mat.e, mat.f],
-            });
+              dispatch({
+                type: "move",
+                x,
+                y,
+              });
+
+              viewingTransformer =
+                viewingTransformer || new ViewingTransformer(svg);
+
+              const dir = e.deltaY < 0 ? 1 : -1;
+              const xFactor = 1 + 0.1 * dir;
+              const yFactor =
+                (xFactor * svg.height.baseVal.value) / svg.width.baseVal.value;
+
+              const mat = viewingTransformer.scale(xFactor, yFactor, { x, y });
+
+              dispatch({
+                type: "matrix",
+                payload: [mat.a, mat.b, mat.c, mat.d, mat.e, mat.f],
+              });
+            }
 
             // group.transform.baseVal.getItem(0).setMatrix(mat);
           }
