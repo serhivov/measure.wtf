@@ -24,7 +24,7 @@ export interface Point {
 }
 
 const reducer = (state: State, action: any) => {
-  const { matrix, viewport, dragging, startPosition, position } = state;
+  const { matrix, dragging, startPosition, position } = state;
 
   switch (action.type) {
     case "move":
