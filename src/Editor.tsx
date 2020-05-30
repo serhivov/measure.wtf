@@ -1,6 +1,7 @@
 import useDocumentTitle from "@rehooks/document-title";
 import React, { useEffect, useReducer, useRef } from "react";
 import { Image } from "./Drop";
+import ViewingTransformer from "./viewingTransformer";
 
 interface State {
   scaleFactor?: number;
@@ -13,6 +14,8 @@ interface State {
   };
   position: Point;
   startPosition: Point;
+  svgRef: React.RefObject<SVGSVGElement>;
+  groupRef: React.RefObject<SVGGElement>;
 }
 
 interface Point {
@@ -88,6 +91,12 @@ const reducer = (state: State, action: any) => {
         dragging: false,
       };
 
+    case "matrix":
+      return {
+        ...state,
+        matrix: action.payload,
+      };
+
     case "zoom":
       const newMatrix = [...matrix];
 
@@ -112,8 +121,13 @@ const reducer = (state: State, action: any) => {
 const distance = (pt1: Point, pt2: Point): number =>
   Math.hypot(pt2.x - pt1.x, pt2.y - pt1.y);
 
+let viewingTransformer: ViewingTransformer;
+
 const Editor: React.FC<{ img: Image }> = ({ img }) => {
   useDocumentTitle(`📏 <${img.file.name}>`);
+
+  const svgRef = useRef<SVGSVGElement>(null);
+  const groupRef = useRef<SVGGElement>(null);
 
   const [{ points, matrix, position, dragging }, dispatch] = useReducer(
     reducer,
@@ -133,10 +147,10 @@ const Editor: React.FC<{ img: Image }> = ({ img }) => {
         x: 0,
         y: 0,
       },
+      svgRef,
+      groupRef,
     }
   );
-  const svgRef = useRef<SVGSVGElement>(null);
-  const groupRef = useRef<SVGGElement>(null);
 
   useEffect(() => {
     const mouseUp = () => dispatch({ type: "up" });
@@ -168,16 +182,33 @@ const Editor: React.FC<{ img: Image }> = ({ img }) => {
         }
         onMouseDown={() => dispatch({ type: "down" })}
         onWheel={(e) => {
-          if (e.deltaY < 0) {
+          const svg = svgRef.current;
+          const group = groupRef.current;
+          if (svg && group) {
+            viewingTransformer =
+              viewingTransformer || new ViewingTransformer(svg);
+
+            const dir = e.deltaY < 0 ? 1 : -1;
+            const xFactor = 1 + 0.1 * dir;
+            const yFactor =
+              (xFactor * svg.height.baseVal.value) / svg.width.baseVal.value;
+
+            const mat = viewingTransformer.scale(
+              xFactor,
+              yFactor,
+              position
+              // {
+              //   x: e.nativeEvent.offsetX,
+              //   y: e.nativeEvent.offsetY,
+              // }
+            );
+
             dispatch({
-              type: "zoom",
-              delta: 1.1,
+              type: "matrix",
+              payload: [mat.a, mat.b, mat.c, mat.d, mat.e, mat.f],
             });
-          } else {
-            dispatch({
-              type: "zoom",
-              delta: 0.9,
-            });
+
+            // group.transform.baseVal.getItem(0).setMatrix(mat);
           }
         }}
         onMouseMove={(event: React.MouseEvent) => {
