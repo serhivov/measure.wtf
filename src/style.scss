@@ -55,5 +55,7 @@ body {
     font-size: 22px;
     text-align: right;
     padding: 10px;
+    pointer-events: none;
+    user-select: none;
   }
 }
