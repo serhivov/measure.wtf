@@ -1,5 +1,5 @@
 import React from "react";
+import Canvas from "./Canvas";
 import defaultFixtureProps from "./defaultFixtureProps";
-import Editor from "./Editor";
 
-export default <Editor {...defaultFixtureProps} />;
+export default <Canvas {...defaultFixtureProps} />;

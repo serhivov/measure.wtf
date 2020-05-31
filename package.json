@@ -6,9 +6,11 @@
   "repository": "https://github.com/johnrees/measure.wtf",
   "dependencies": {
     "@rehooks/document-title": "^1.0.2",
+    "konva": "^6.0.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-dropzone": "^11.0.1",
+    "react-konva": "^16.13.0-3",
     "rxjs": "^6.5.5"
   },
   "scripts": {
