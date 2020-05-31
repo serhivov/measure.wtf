@@ -1,36 +1,16 @@
 import useDocumentTitle from "@rehooks/document-title";
 import React, { useEffect, useReducer, useRef } from "react";
 import { fromEvent, merge, Subscription } from "rxjs";
-import { Image } from "./Drop";
-import reducer from "./lib/reducer";
-import ViewingTransformer from "./lib/viewingTransformer";
-
-export interface State {
-  scaleFactor?: number;
-  points: Point[];
-  matrix: number[];
-  dragging: boolean;
-  viewport: {
-    width: number;
-    height: number;
-  };
-  position: Point;
-  startPosition: Point;
-  svgRef: React.RefObject<SVGSVGElement>;
-  groupRef: React.RefObject<SVGGElement>;
-}
-
-export interface Point {
-  x: number;
-  y: number;
-}
+import { Image } from "../Drop";
+import reducer, { Point } from "../lib/reducer";
+import ViewingTransformer from "../lib/viewingTransformer";
 
 const distance = (pt1: Point, pt2: Point): number =>
   Math.hypot(pt2.x - pt1.x, pt2.y - pt1.y);
 
 let viewingTransformer: ViewingTransformer;
 
-const Editor: React.FC<{ img: Image }> = ({ img }) => {
+const SVG: React.FC<{ img: Image }> = ({ img }) => {
   useDocumentTitle(`📏 <${img.file.name}>`);
 
   const svgRef = useRef<SVGSVGElement>(null);
@@ -223,4 +203,4 @@ const Editor: React.FC<{ img: Image }> = ({ img }) => {
   );
 };
 
-export default Editor;
+export default SVG;

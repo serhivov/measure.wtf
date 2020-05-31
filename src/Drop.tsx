@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import Editor from "./Editor";
+import Editor from "./editors/SVG";
 
 export interface Image {
   file: any;

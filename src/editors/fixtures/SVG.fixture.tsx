@@ -1,5 +1,5 @@
 import React from "react";
-import Canvas from "./Canvas";
+import SVG from "../SVG";
 import defaultFixtureProps from "./defaultFixtureProps";
 
-export default <Canvas {...defaultFixtureProps} />;
+export default <SVG {...defaultFixtureProps} />;

@@ -2,7 +2,7 @@ import { Stage as KonvaStage } from "konva/types/Stage";
 import { Vector2d } from "konva/types/types";
 import React, { useEffect, useState } from "react";
 import { Image as KonvaImage, Layer, Stage, Star } from "react-konva";
-import { Image as ImageType } from "./Drop";
+import { Image as ImageType } from "../Drop";
 
 const scaleBy = 1.02;
 const MIN_SCALE = 0.5;

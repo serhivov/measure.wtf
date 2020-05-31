@@ -1,12 +1,12 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import Canvas from "./Canvas";
+import Drop from "./Drop";
 import * as serviceWorker from "./serviceWorker";
 import "./style.scss";
 
 ReactDOM.render(
   <React.StrictMode>
-    <Canvas />
+    <Drop />
   </React.StrictMode>,
   document.getElementById("root")
 );

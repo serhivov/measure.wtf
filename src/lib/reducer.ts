@@ -1,4 +1,22 @@
-import { State } from "../Editor";
+export interface State {
+  scaleFactor?: number;
+  points: Point[];
+  matrix: number[];
+  dragging: boolean;
+  viewport: {
+    width: number;
+    height: number;
+  };
+  position: Point;
+  startPosition: Point;
+  svgRef: React.RefObject<SVGSVGElement>;
+  groupRef: React.RefObject<SVGGElement>;
+}
+
+export interface Point {
+  x: number;
+  y: number;
+}
 
 const reducer = (state: State, action: any) => {
   const { matrix, dragging, startPosition, position } = state;
